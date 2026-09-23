@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "agentreins-weather": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "__MCP_SERVER_PATH__",
+        "--base-url",
+        "http://127.0.0.1:43180",
+        "--protocol-log",
+        "__MCP_PROTOCOL_LOG_PATH__",
+        "--protocol-manifest",
+        "__MCP_PROTOCOL_MANIFEST_PATH__"
+      ],
+      "cwd": "__MCP_SERVER_DIRECTORY__",
+      "timeout": 30000
+    }
+  }
+}

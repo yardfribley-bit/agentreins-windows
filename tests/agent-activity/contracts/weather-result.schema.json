@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentreins.local/schemas/weather-result.schema.json",
+  "title": "AgentReins Weather Test Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "city", "measurement", "provenance", "execution"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "run_id": { "type": "string" },
+    "city": { "type": "string" },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["temperature_c", "condition", "observed_at"],
+      "properties": {
+        "temperature_c": { "type": "number" },
+        "condition": { "type": "string" },
+        "observed_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "fixture"],
+      "properties": {
+        "source": { "const": "agentreins-controlled-weather-v1" },
+        "fixture": { "const": true }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["channel", "component", "tool_name"],
+      "properties": {
+        "channel": { "enum": ["skill", "mcp"] },
+        "component": { "type": "string" },
+        "tool_name": { "type": "string" }
+      }
+    }
+  }
+}

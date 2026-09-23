@@ -1,0 +1,16 @@
+[package]
+name = "gui-host"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+axum.workspace = true
+evidence-correlator = { path = "../evidence-correlator" }
+native-contracts = { path = "../native-contracts" }
+product-config = { path = "../product-config" }
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tower-http.workspace = true

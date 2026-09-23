@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentreins.local/schemas/weather-request.schema.json",
+  "title": "AgentReins Weather Test Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["city", "run_id"],
+  "properties": {
+    "city": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    }
+  }
+}

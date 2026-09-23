@@ -1,0 +1,16 @@
+[package]
+name = "etw-collector"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+native-contracts = { path = "../native-contracts" }
+serde.workspace = true
+serde_json.workspace = true
+workbuddy-adapter = { path = "../../adapters/workbuddy" }
+
+[target.'cfg(windows)'.dependencies]
+ferrisetw.workspace = true
+windows.workspace = true

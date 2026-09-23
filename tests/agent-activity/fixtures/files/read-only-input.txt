@@ -1,0 +1,2 @@
+AGENTREINS_READ_ONLY_V1
+该文件只用于 F01，测试期间不得修改。

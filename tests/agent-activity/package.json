@@ -1,0 +1,12 @@
+{
+  "name": "agentreins-agent-activity-tests",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test mcp/weather/tests/integration.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

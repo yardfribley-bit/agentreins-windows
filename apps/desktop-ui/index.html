@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" type="image/png" href="/assets/agentreins-logo.png" />
+    <title>AgentReins · Agent 中心观测</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand" aria-label="AgentReins Agent 中心观测">
+          <img src="/assets/agentreins-logo.png" alt="" />
+          <div><strong>AgentReins</strong><span>Agent 中心观测</span></div>
+        </div>
+        <button class="agent-switch" id="workbuddy-agent" type="button" title="查看当前 Agent 身份">
+          <img src="/assets/agent-workbuddy.svg" alt="" />
+          <span><b>WorkBuddy</b><small id="workbuddy-version">正在读取身份</small></span>
+        </button>
+        <div class="top-spacer"></div>
+        <span class="scope-pill">仅观察 Agent</span>
+        <span class="health-pill" id="observer-top-status">正在读取 Observer</span>
+        <button class="refresh" id="refresh-data" type="button" aria-label="刷新真实数据" title="刷新真实数据">↻</button>
+      </header>
+
+      <div class="shell">
+        <nav class="nav" aria-label="主页面">
+          <div class="nav-label">工作区</div>
+          <button type="button" data-system-view="overview"><span class="nav-icon">⌂</span><span>总览</span></button>
+          <button type="button" data-system-view="sessions"><span class="nav-icon">▤</span><span>会话</span></button>
+          <button type="button" data-system-view="capabilities"><span class="nav-icon">◇</span><span>能力</span></button>
+          <button type="button" data-system-view="agents"><span class="nav-icon">◎</span><span>Agent</span></button>
+          <button type="button" data-system-view="evidence"><span class="nav-icon">≡</span><span>证据与覆盖</span></button>
+          <button type="button" data-system-view="settings"><span class="nav-icon">⚙</span><span>设置与诊断</span></button>
+          <div class="nav-meta"><strong>Observe-only</strong>控制功能尚未启用</div>
+        </nav>
+        <main class="workspace" id="main-content" tabindex="-1">
+          <p class="loading-card">正在读取真实 Observer 数据…</p>
+        </main>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="sr-only" id="navigation-status" aria-live="polite"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

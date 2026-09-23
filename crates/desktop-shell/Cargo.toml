@@ -1,0 +1,20 @@
+[package]
+name = "agentreins-desktop"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+gui-host = { path = "../gui-host" }
+product-config = { path = "../product-config" }
+serde.workspace = true
+serde_json.workspace = true
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-single-instance = "2"
+tokio.workspace = true
+uuid = { version = "1", features = ["v4"] }
+windows-service.workspace = true

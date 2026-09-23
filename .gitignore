@@ -1,0 +1,7 @@
+/target/
+/apps/desktop-ui/dist/
+/apps/desktop-ui/node_modules/
+/data/
+.DS_Store
+*.etl
+*.ndjson

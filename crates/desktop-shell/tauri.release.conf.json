@@ -1,0 +1,13 @@
+{
+  "build": {
+    "beforeBuildCommand": ""
+  },
+  "bundle": {
+    "targets": ["msi"],
+    "externalBin": [
+      "binaries/agentreins-observer-service",
+      "binaries/etw-collector",
+      "binaries/workbuddy-semantic-collector"
+    ]
+  }
+}

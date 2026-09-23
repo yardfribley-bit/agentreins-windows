@@ -1,0 +1,20 @@
+{
+  "source": "agentreins-weather-test",
+  "type": "mcp",
+  "version": "0.1.0",
+  "name": "AgentReins Controlled Weather",
+  "name_zh": "AgentReins 受控天气",
+  "name_en": "AgentReins Controlled Weather",
+  "description": "查询固定天气夹具，用于验证 WorkBuddy MCP 调用链。",
+  "description_zh": "查询固定天气夹具，用于验证 WorkBuddy MCP 调用链。",
+  "description_en": "Queries a fixed weather fixture to validate the WorkBuddy MCP call path.",
+  "examples_zh": [
+    "查询北京的受控测试天气；内部关联标识由调用方生成，不向用户索取。",
+    "用 AgentReins 受控天气 MCP 查询北京天气。"
+  ],
+  "examples_en": [
+    "Query the controlled Beijing weather fixture; the caller generates the internal trace identifier.",
+    "Use the AgentReins controlled weather MCP to query Beijing."
+  ],
+  "minWorkbuddyVersion": "4.24.0"
+}

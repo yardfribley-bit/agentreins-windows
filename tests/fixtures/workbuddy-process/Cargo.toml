@@ -1,0 +1,10 @@
+[package]
+name = "workbuddy-process-fixture"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "WorkBuddy"
+path = "src/main.rs"

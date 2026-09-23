@@ -1,0 +1,46 @@
+{
+  "schema_version": "0.2.0",
+  "event_id": "legacy:1",
+  "event_timestamp_unix_ms": 1000,
+  "observed_at_unix_ms": 1001,
+  "phase": "live",
+  "operation_id": null,
+  "actor": {
+    "agent_kind": "work_buddy",
+    "identity_status": "verified",
+    "root_process_instance_id": "legacy-process",
+    "identity": {
+      "executable_path": "C:\\WorkBuddy.exe",
+      "file_version": "5.5.6",
+      "sha256": "legacy",
+      "signer_subject": "legacy"
+    }
+  },
+  "session": { "id": "legacy-session" },
+  "process": {
+    "pid": 100,
+    "parent_pid": null,
+    "unique_process_key": null,
+    "process_instance_id": "legacy-process",
+    "process_session_id": 1,
+    "user_sid": null,
+    "image_name": "WorkBuddy.exe",
+    "image_path": "C:\\WorkBuddy.exe",
+    "command_line_observed": false,
+    "command_line": null,
+    "exit_status": null
+  },
+  "action": { "kind": "file_read" },
+  "resource": { "kind": "file", "identifier": "C:\\input.txt" },
+  "destination": null,
+  "result": { "status_code": null, "success": null, "bytes_transferred": 16 },
+  "verdict": { "mode": "observe", "outcome": "observed" },
+  "evidence": {
+    "source": "etw",
+    "provider_id": "legacy-provider",
+    "provider_event_id": 1,
+    "provider_opcode": 67,
+    "provider_event_version": 1
+  },
+  "confidence": "high"
+}
