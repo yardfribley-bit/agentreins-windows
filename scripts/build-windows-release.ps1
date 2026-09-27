@@ -106,7 +106,7 @@ foreach ($outputRoot in @($release, $install)) {
 }
 
 $cargoManifest = Get-Content -LiteralPath (Join-Path $source 'Cargo.toml') -Raw -Encoding UTF8
-$versionMatch = [regex]::Match($cargoManifest, '(?m)^version = "(?<version>\d+\.\d+\.\d+)"$')
+$versionMatch = [regex]::Match($cargoManifest, '(?m)^version = "(?<version>\d+\.\d+\.\d+)"\r?$')
 if (-not $versionMatch.Success) {
     throw "无法从 Cargo.toml 读取平台版本 path=$(Join-Path $source 'Cargo.toml')"
 }
