@@ -1,0 +1,44 @@
+name: Windows installer (test build)
+
+on:
+  push:
+    branches:
+      - codex/windows-audit-upload
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/desktop-ui/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.88.0
+      - name: Install UI dependencies
+        working-directory: apps/desktop-ui
+        run: npm ci
+      - name: Build Windows installers
+        shell: pwsh
+        run: |
+          $source = (Get-Location).Path
+          $output = Join-Path $env:RUNNER_TEMP 'AgentReins'
+          $cargo = (Get-Command cargo.exe).Source
+          $node = (Get-Command node.exe).Source
+          $tauri = Join-Path $source 'apps/desktop-ui/node_modules/@tauri-apps/cli/tauri.js'
+          & ./scripts/build-windows-release.ps1 -SourceRoot $source -ReleaseRoot (Join-Path $output 'Release') -InstallRoot (Join-Path $output 'Install') -CargoPath $cargo -NodePath $node -TauriCliPath $tauri
+      - name: Upload test installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: AgentReins-Windows-test-installers
+          path: ${{ runner.temp }}/AgentReins/Install/*
+          if-no-files-found: error
+          retention-days: 7
