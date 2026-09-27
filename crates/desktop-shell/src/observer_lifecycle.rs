@@ -124,9 +124,60 @@ pub fn start(configuration: ProductConfiguration, resource_root: PathBuf) -> Res
             ) {
                 eprintln!("无法写入 Observer 生命周期错误状态 error={write_error}");
             }
+        } else {
+            start_audit_upload_loop(&compatible_resource_root);
         }
     });
     Ok(())
+}
+
+fn start_audit_upload_loop(resource_root: &Path) {
+    let Some(local_app_data) = std::env::var_os("LOCALAPPDATA").map(PathBuf::from) else {
+        return;
+    };
+    let Some(program_data) = std::env::var_os("PROGRAMDATA").map(PathBuf::from) else {
+        return;
+    };
+    let cloud_audit = local_app_data.join("AgentReins").join("CloudAudit");
+    let config = cloud_audit.join("device.json");
+    let state = cloud_audit.join("state");
+    let runtime = program_data.join("AgentReins").join("runtime");
+    let script = resource_root
+        .join("scripts")
+        .join("upload-agentreins-audit.ps1");
+    if !script.is_file() {
+        eprintln!("云审计上传脚本未随应用打包 path={}", script.display());
+        return;
+    }
+    let script = script.to_path_buf();
+    thread::spawn(move || loop {
+        if config.is_file() {
+            match power_shell_path() {
+                Ok(shell) => {
+                    let status = Command::new(shell)
+                        .arg("-NoProfile")
+                        .arg("-NonInteractive")
+                        .arg("-ExecutionPolicy")
+                        .arg("Bypass")
+                        .arg("-File")
+                        .arg(&script)
+                        .arg("-EvidenceRoot")
+                        .arg(&runtime)
+                        .arg("-ConfigurationPath")
+                        .arg(&config)
+                        .arg("-StateRoot")
+                        .arg(&state)
+                        .creation_flags(CREATE_NO_WINDOW)
+                        .status();
+                    if let Err(error) = status {
+                        eprintln!("无法启动云审计上传任务 error={error}");
+                    }
+                }
+                Err(error) => eprintln!("无法找到 PowerShell，云审计上传暂停 error={error}"),
+            }
+        }
+        thread::sleep(Duration::from_secs(15));
+    });
 }
 
 fn ensure_observers(

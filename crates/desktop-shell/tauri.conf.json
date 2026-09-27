@@ -22,6 +22,7 @@
       "../../apps/desktop-ui/dist/": "ui/",
       "../../scripts/get-workbuddy-semantic-observer-status.ps1": "scripts/get-workbuddy-semantic-observer-status.ps1",
       "../../scripts/install-agentreins-observer-service.ps1": "scripts/install-agentreins-observer-service.ps1",
+      "../../scripts/upload-agentreins-audit.ps1": "scripts/upload-agentreins-audit.ps1",
       "../../scripts/run-workbuddy-semantic-observer-host.ps1": "scripts/run-workbuddy-semantic-observer-host.ps1",
       "../../scripts/start-workbuddy-semantic-observer.ps1": "scripts/start-workbuddy-semantic-observer.ps1",
       "../../scripts/stop-workbuddy-semantic-observer.ps1": "scripts/stop-workbuddy-semantic-observer.ps1",

@@ -18,6 +18,14 @@ AgentReins 是面向 Windows Agent 应用的安全观测与证据关联工具。
 - `crates/gui-host/`、`crates/desktop-shell/`、`apps/desktop-ui/`：本地产品界面。
 - `tests/`：Windows 集成、端到端和受控活动测试材料。
 
+## Windows 安装包
+
+Windows 发布构建同时生成 MSI 和 NSIS `-setup.exe` 安装程序。两者都是安装包；
+`-setup.exe` 不是免安装的单文件程序。下载后应先核对同一发布版本附带的
+`SHA256SUMS.txt`，再在受控 Windows 环境中安装并验证 WorkBuddy 观测、
+证据导出和卸载。ETW 采集需要相应系统权限。未经真实 Windows 验证的构建
+不应标记为正式发布。
+
 ## Windows 验证
 
 ```powershell

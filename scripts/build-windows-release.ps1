@@ -143,9 +143,9 @@ try {
         }
         Push-Location (Join-Path $source 'crates\desktop-shell')
         try {
-            & $node $tauriCli build --config (Join-Path $source 'crates\desktop-shell\tauri.release.conf.json') --bundles msi
+            & $node $tauriCli build --config (Join-Path $source 'crates\desktop-shell\tauri.release.conf.json')
             if ($LASTEXITCODE -ne 0) {
-                throw "AgentReins MSI 构建失败 exit_code=$LASTEXITCODE"
+                throw "AgentReins MSI/EXE 构建失败 exit_code=$LASTEXITCODE"
             }
         }
         finally {
@@ -173,6 +173,7 @@ try {
     Copy-Item -LiteralPath (Join-Path $source 'scripts\stop-workbuddy-semantic-observer.ps1') -Destination (Join-Path $releaseStage 'scripts\stop-workbuddy-semantic-observer.ps1') -Force
     Copy-Item -LiteralPath (Join-Path $source 'scripts\update-workbuddy-semantic-evidence.ps1') -Destination (Join-Path $releaseStage 'scripts\update-workbuddy-semantic-evidence.ps1') -Force
     Copy-Item -LiteralPath (Join-Path $source 'scripts\install-agentreins-observer-service.ps1') -Destination (Join-Path $releaseStage 'scripts\install-agentreins-observer-service.ps1') -Force
+    Copy-Item -LiteralPath (Join-Path $source 'scripts\upload-agentreins-audit.ps1') -Destination (Join-Path $releaseStage 'scripts\upload-agentreins-audit.ps1') -Force
 
     $msi = Get-ChildItem -LiteralPath (Join-Path $source 'target\release\bundle\msi') -Filter '*.msi' -File |
         Sort-Object LastWriteTimeUtc |
@@ -183,9 +184,18 @@ try {
     $installerName = "AgentReins_${version}_x64_en-US.msi"
     Copy-Item -LiteralPath $msi.FullName -Destination (Join-Path $installStage $installerName) -Force
 
+    $setup = Get-ChildItem -LiteralPath (Join-Path $source 'target\release\bundle\nsis') -Filter '*-setup.exe' -File |
+        Sort-Object LastWriteTimeUtc |
+        Select-Object -Last 1
+    if ($null -eq $setup) {
+        throw "Tauri 构建成功但未找到 EXE 安装程序 path=$(Join-Path $source 'target\release\bundle\nsis')"
+    }
+    $setupName = "AgentReins_${version}_x64-setup.exe"
+    Copy-Item -LiteralPath $setup.FullName -Destination (Join-Path $installStage $setupName) -Force
+
     Write-ReleaseManifest -Path (Join-Path $releaseStage 'release-manifest.json') -Version $version -Files @($releaseFiles + 'ui/' + 'scripts/')
     Write-Checksums -Root $releaseStage -OutputPath (Join-Path $releaseStage 'SHA256SUMS.txt')
-    Write-ReleaseManifest -Path (Join-Path $installStage 'release-manifest.json') -Version $version -Files @($installerName)
+    Write-ReleaseManifest -Path (Join-Path $installStage 'release-manifest.json') -Version $version -Files @($installerName, $setupName)
     Write-Checksums -Root $installStage -OutputPath (Join-Path $installStage 'SHA256SUMS.txt')
 
     foreach ($outputRoot in @($release, $install)) {
@@ -204,6 +214,7 @@ try {
         version = $version
         release_path = Join-Path $release "AgentReins-$version"
         installer_path = Join-Path $install $installerName
+        setup_exe_path = Join-Path $install $setupName
         historical_observer_evidence_deleted = $false
     } | ConvertTo-Json -Compress
 }

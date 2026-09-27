@@ -3,7 +3,7 @@
     "beforeBuildCommand": ""
   },
   "bundle": {
-    "targets": ["msi"],
+    "targets": ["msi", "nsis"],
     "externalBin": [
       "binaries/agentreins-observer-service",
       "binaries/etw-collector",
