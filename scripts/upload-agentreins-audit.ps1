@@ -2,7 +2,9 @@
 param(
     [Parameter(Mandatory = $true)][string]$EvidenceRoot,
     [Parameter(Mandatory = $true)][string]$ConfigurationPath,
-    [Parameter(Mandatory = $true)][string]$StateRoot
+    [Parameter(Mandatory = $true)][string]$StateRoot,
+    [string]$OsEvidenceRoot = $EvidenceRoot,
+    [switch]$FunctionsOnly
 )
 
 # The observer owns collection. This process only reads published evidence and
@@ -287,6 +289,7 @@ function Send-Packet([Uri]$Endpoint, [string]$DeviceID, [string]$Token, [string]
     } finally { $client.Dispose(); $handler.Dispose() }
 }
 
+if ($FunctionsOnly) { return }
 $configuration = Read-Json $ConfigurationPath
 if ($configuration.uploadEnabled -ne $true) { return }
 $endpoint = [Uri]$configuration.endpoint
@@ -301,6 +304,7 @@ $run = [string]$pointer.run_root
 $observer = Read-Json (Join-Path $run 'semantic-observer-process.json')
 $manifest = Read-Json ([string]$observer.semantic_manifest_path)
 if ([string]$manifest.session_id -ne [string]$observer.session_id) { throw 'Semantic session mismatch' }
+if ([string]$pointer.session_id -ne [string]$observer.session_id) { throw 'Semantic pointer session mismatch' }
 $events = @((Published-Lines ([string]$manifest.semantic_file) ([long]$manifest.published_bytes)) |
     ForEach-Object { $_ | ConvertFrom-Json })
 if ($events.Count -ne [long]$manifest.semantic_events) { throw 'Semantic publication count mismatch' }
@@ -326,10 +330,12 @@ foreach ($group in $groups) {
         [long]$firstUser[0].event_timestamp_unix_ms -lt $enabledAt -or
         [long]$firstRequest[0].event_timestamp_unix_ms -lt $enabledAt) { continue }
     $operations = @($group.Group | ForEach-Object { $_.operation_id } | Where-Object { $_ } | Sort-Object -Unique)
-    $osPointerPath = Join-Path $EvidenceRoot 'current-os-run.json'
+    $osPointerPath = Join-Path $OsEvidenceRoot 'current-os-run.json'
     $osEvents = if (Test-Path -LiteralPath $osPointerPath) {
         $osPointer = Read-Json $osPointerPath
-        Read-Matched-OsEvents ([string]$osPointer.run_root) $operations
+        if ([string]$osPointer.session_id -eq [string]$observer.session_id) {
+            Read-Matched-OsEvents ([string]$osPointer.run_root) $operations
+        } else { @() }
     } else { @() }
     $snapshot = New-Snapshot $group $osEvents
     if ($null -eq $snapshot) { continue }
