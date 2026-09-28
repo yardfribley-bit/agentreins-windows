@@ -42,3 +42,5 @@ jobs:
           path: ${{ runner.temp }}/AgentReins/Install/*
           if-no-files-found: error
           retention-days: 7
+      - name: Test fresh-install product startup
+        run: cargo test -p gui-host --test product_selection

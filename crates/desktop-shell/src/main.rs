@@ -28,6 +28,7 @@ struct StartupConfiguration {
 fn main() {
     if let Err(error) = run() {
         eprintln!("{error}");
+        report_startup_error(&error);
         std::process::exit(1);
     }
 }
@@ -35,7 +36,9 @@ fn main() {
 fn run() -> Result<(), String> {
     let startup = load_startup_configuration(env::args().collect())?;
     let product_service = ProductService::new(startup.product.clone())?;
-    let initial_session_id = product_service.current_selection()?.session_id;
+    let initial_session_id = product_service.current_selection()
+        .map(|selection| selection.session_id)
+        .unwrap_or_else(|_| String::from("awaiting-observers"));
     let access_token = Uuid::new_v4().simple().to_string();
     let application_context = tauri::generate_context!();
     tauri::Builder::default()
@@ -190,6 +193,9 @@ fn load_startup_configuration(raw_arguments: Vec<String>) -> Result<StartupConfi
         .ok_or_else(|| String::from("Windows LOCALAPPDATA 未定义"))?;
     let configuration_path = local_app_data.join("AgentReins").join("product-config.bin");
     if raw_arguments.len() == 1 {
+        if !configuration_path.exists() {
+            initialize_default_configuration(&configuration_path)?;
+        }
         return Ok(StartupConfiguration {
             product: load_encrypted(&configuration_path)?,
             configuration_path,
@@ -230,4 +236,45 @@ fn load_startup_configuration(raw_arguments: Vec<String>) -> Result<StartupConfi
 
 fn io_error(message: String) -> Box<dyn std::error::Error> {
     Box::new(std::io::Error::other(message))
+}
+
+fn initialize_default_configuration(configuration_path: &std::path::Path) -> Result<(), String> {
+    use std::io::Write;
+    let root = configuration_path.parent().ok_or("产品配置缺少父目录")?;
+    let evidence = root.join("evidence");
+    let exports = root.join("exports");
+    for directory in [&evidence, &exports] {
+        std::fs::create_dir_all(directory)
+            .map_err(|error| format!("无法创建首次启动目录 path={} error={error}", directory.display()))?;
+    }
+    // Reserved configuration path, not an observation or fabricated evidence.
+    // Actual MCP evidence is selected from each observer run's native manifest.
+    let manifest = root.join("mcp-unconfigured.json");
+    if !manifest.exists() {
+        let mut file = std::fs::OpenOptions::new().write(true).create_new(true).open(&manifest)
+            .map_err(|error| format!("无法创建 MCP 配置占位文件 error={error}"))?;
+        file.write_all(b"{\"status\":\"unconfigured\"}")
+            .map_err(|error| format!("无法写入 MCP 配置占位文件 error={error}"))?;
+    }
+    let product = ProductConfiguration::new(evidence, manifest, exports, 7)?;
+    save_encrypted(configuration_path, &product)
+}
+
+fn report_startup_error(error: &str) {
+    if let Some(root) = env::var_os("LOCALAPPDATA") {
+        let root = PathBuf::from(root).join("AgentReins");
+        let _ = std::fs::create_dir_all(&root);
+        let _ = std::fs::write(root.join("startup-error.log"), error);
+    }
+    #[cfg(windows)]
+    {
+        #[link(name = "user32")]
+        unsafe extern "system" {
+            fn MessageBoxW(window: *mut std::ffi::c_void, text: *const u16, caption: *const u16, flags: u32) -> i32;
+        }
+        let text: Vec<u16> = format!("AgentReins 启动失败：\n{error}\n\n详情保存在 %LOCALAPPDATA%\\AgentReins\\startup-error.log")
+            .encode_utf16().chain(Some(0)).collect();
+        let caption: Vec<u16> = "AgentReins".encode_utf16().chain(Some(0)).collect();
+        unsafe { MessageBoxW(std::ptr::null_mut(), text.as_ptr(), caption.as_ptr(), 0x10); }
+    }
 }
