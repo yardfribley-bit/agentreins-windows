@@ -9,6 +9,20 @@ use product_config::ProductConfiguration;
 use serde_json::json;
 
 #[test]
+fn product_service_can_start_before_any_observation() -> Result<(), String> {
+    let root = create_test_root()?;
+    let evidence = root.join("evidence");
+    fs::create_dir_all(&evidence).map_err(|error| error.to_string())?;
+    let manifest = root.join("mcp-unconfigured.json");
+    write_json(&manifest, &json!({ "status": "unconfigured" }))?;
+    let configuration = ProductConfiguration::new(evidence, manifest, root.join("exports"), 7)?;
+    let service = ProductService::new(configuration)?;
+    assert!(service.current_selection().is_err(), "must not fabricate a native session");
+    fs::remove_dir_all(root).map_err(|error| error.to_string())?;
+    Ok(())
+}
+
+#[test]
 fn product_service_reselects_new_native_observer_session() -> Result<(), String> {
     let root = create_test_root()?;
     let evidence_root = root.join("evidence");

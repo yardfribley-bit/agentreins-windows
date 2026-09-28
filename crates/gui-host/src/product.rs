@@ -25,7 +25,6 @@ pub struct ProductSettingsView {
 impl ProductService {
     pub fn new(configuration: ProductConfiguration) -> Result<Self, String> {
         configuration.validate()?;
-        select_observer_runs(&configuration)?;
         Ok(Self { configuration })
     }
 
