@@ -139,9 +139,14 @@ fn start_audit_upload_loop(resource_root: &Path) {
         return;
     };
     let cloud_audit = local_app_data.join("AgentReins").join("CloudAudit");
+    if fs::create_dir_all(&cloud_audit).is_err() {
+        eprintln!("无法创建云审计状态目录");
+        return;
+    }
     let config = cloud_audit.join("device.json");
     let state = cloud_audit.join("state");
-    let runtime = program_data.join("AgentReins").join("runtime");
+    let runtime = local_app_data.join("AgentReins").join("runtime");
+    let os_runtime = program_data.join("AgentReins").join("runtime");
     let script = resource_root
         .join("scripts")
         .join("upload-agentreins-audit.ps1");
@@ -151,6 +156,7 @@ fn start_audit_upload_loop(resource_root: &Path) {
     }
     let script = script.to_path_buf();
     thread::spawn(move || loop {
+        let status_path = cloud_audit.join("upload-status.json");
         if config.is_file() {
             match power_shell_path() {
                 Ok(shell) => {
@@ -163,18 +169,31 @@ fn start_audit_upload_loop(resource_root: &Path) {
                         .arg(&script)
                         .arg("-EvidenceRoot")
                         .arg(&runtime)
+                        .arg("-OsEvidenceRoot")
+                        .arg(&os_runtime)
                         .arg("-ConfigurationPath")
                         .arg(&config)
                         .arg("-StateRoot")
                         .arg(&state)
                         .creation_flags(CREATE_NO_WINDOW)
                         .status();
-                    if let Err(error) = status {
-                        eprintln!("无法启动云审计上传任务 error={error}");
-                    }
+                    let (upload_state, exit_code) = match status {
+                        Ok(status) if status.success() => ("completed", status.code()),
+                        Ok(status) => ("failed", status.code()),
+                        Err(_) => ("launch_failed", None),
+                    };
+                    // Diagnostic status never contains credentials or task bodies.
+                    let _ = write_json_atomic(&status_path, &serde_json::json!({
+                        "state": upload_state, "exitCode": exit_code,
+                        "updatedAtUnixMs": unix_time_ms().unwrap_or(0)
+                    }));
                 }
                 Err(error) => eprintln!("无法找到 PowerShell，云审计上传暂停 error={error}"),
             }
+        } else {
+            let _ = write_json_atomic(&status_path, &serde_json::json!({
+                "state": "not_enrolled", "updatedAtUnixMs": unix_time_ms().unwrap_or(0)
+            }));
         }
         thread::sleep(Duration::from_secs(15));
     });

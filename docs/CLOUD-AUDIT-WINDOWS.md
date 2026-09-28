@@ -11,6 +11,12 @@ ETW 采集器不参与网络传输；上传器只读取已发布的 WorkBuddy �
 政策后启用，不要把设备令牌、任务证据或服务端凭据提交到 Git。
 
 配置路径：`%LOCALAPPDATA%\AgentReins\CloudAudit\device.json`。
+语义指针读取 `%LOCALAPPDATA%\AgentReins\runtime\current-semantic-run.json`；
+OS 指针读取 `%PROGRAMDATA%\AgentReins\runtime\current-os-run.json`。
+两个指针必须属于同一原生会话，才可附加 OS 证据；不按时间近似关联。
+`CloudAudit\upload-status.json` 保存执行状态和退出码，不包含令牌或任务正文。
+`completed` 只表示上传脚本完成检查，不代表必然有新数据；实际上传成功必须
+检查 `CloudAudit\state\upload-state.json` 中的 `receiptID`，并在服务端核对记录。
 该文件由企业审计服务的设备注册流程提供，示意结构如下（值均为占位符）：
 
 ```json

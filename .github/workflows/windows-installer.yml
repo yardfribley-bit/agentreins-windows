@@ -44,7 +44,13 @@ jobs:
           $errors = $null
           [System.Management.Automation.Language.Parser]::ParseFile((Join-Path (Get-Location) 'scripts/initialize-workbuddy-observer.ps1'), [ref]$tokens, [ref]$errors) | Out-Null
           if ($errors.Count -gt 0) { $errors | Format-List; throw 'Observer bootstrap syntax errors' }
+      - name: Test Windows audit snapshot contract
+        shell: pwsh
+        run: ./tests/test-windows-audit-snapshot.ps1
+      - name: Test device enrollment isolation
+        run: python -m unittest discover -s tests -p test_windows_audit_enrollment.py
       - name: Upload test installers
+        # Artifacts are published only after contract tests pass.
         uses: actions/upload-artifact@v4
         with:
           name: AgentReins-Windows-test-installers
