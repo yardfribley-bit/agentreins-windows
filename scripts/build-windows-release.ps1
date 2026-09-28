@@ -167,6 +167,7 @@ try {
     }
     Copy-Item -LiteralPath (Join-Path $source 'apps\desktop-ui\dist') -Destination (Join-Path $releaseStage 'ui') -Recurse
     New-Item -ItemType Directory -Path (Join-Path $releaseStage 'scripts') | Out-Null
+    Copy-Item -LiteralPath (Join-Path $source 'scripts\initialize-workbuddy-observer.ps1') -Destination (Join-Path $releaseStage 'scripts\initialize-workbuddy-observer.ps1') -Force
     Copy-Item -LiteralPath (Join-Path $source 'scripts\get-workbuddy-semantic-observer-status.ps1') -Destination (Join-Path $releaseStage 'scripts\get-workbuddy-semantic-observer-status.ps1') -Force
     Copy-Item -LiteralPath (Join-Path $source 'scripts\run-workbuddy-semantic-observer-host.ps1') -Destination (Join-Path $releaseStage 'scripts\run-workbuddy-semantic-observer-host.ps1') -Force
     Copy-Item -LiteralPath (Join-Path $source 'scripts\start-workbuddy-semantic-observer.ps1') -Destination (Join-Path $releaseStage 'scripts\start-workbuddy-semantic-observer.ps1') -Force

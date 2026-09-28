@@ -35,6 +35,15 @@ jobs:
           $node = (Get-Command node.exe).Source
           $tauri = Join-Path $source 'apps/desktop-ui/node_modules/@tauri-apps/cli/tauri.js'
           & ./scripts/build-windows-release.ps1 -SourceRoot $source -ReleaseRoot (Join-Path $output 'Release') -InstallRoot (Join-Path $output 'Install') -CargoPath $cargo -NodePath $node -TauriCliPath $tauri
+      - name: Test fresh-install product startup
+        run: cargo test -p gui-host --test product_selection
+      - name: Check observer bootstrap PowerShell syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Join-Path (Get-Location) 'scripts/initialize-workbuddy-observer.ps1'), [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) { $errors | Format-List; throw 'Observer bootstrap syntax errors' }
       - name: Upload test installers
         uses: actions/upload-artifact@v4
         with:
@@ -42,5 +51,3 @@ jobs:
           path: ${{ runner.temp }}/AgentReins/Install/*
           if-no-files-found: error
           retention-days: 7
-      - name: Test fresh-install product startup
-        run: cargo test -p gui-host --test product_selection

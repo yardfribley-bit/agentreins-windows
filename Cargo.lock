@@ -10,7 +10,7 @@ checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 
 [[package]]
 name = "agentreins-desktop"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "gui-host",
  "product-config",
@@ -25,7 +25,7 @@ dependencies = [
 
 [[package]]
 name = "agentreins-observer-service"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "serde",
  "serde_json",
@@ -471,7 +471,7 @@ dependencies = [
 
 [[package]]
 name = "capability-audit"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "native-contracts",
  "serde",
@@ -1053,7 +1053,7 @@ dependencies = [
 
 [[package]]
 name = "etw-collector"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "ferrisetw",
  "native-contracts",
@@ -1085,7 +1085,7 @@ dependencies = [
 
 [[package]]
 name = "evidence-correlator"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "native-contracts",
  "serde",
@@ -1578,7 +1578,7 @@ dependencies = [
 
 [[package]]
 name = "gui-host"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "axum",
  "evidence-correlator",
@@ -2271,7 +2271,7 @@ dependencies = [
 
 [[package]]
 name = "native-contracts"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "serde",
  "serde_json",
@@ -2933,7 +2933,7 @@ dependencies = [
 
 [[package]]
 name = "product-config"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "serde",
  "serde_json",
@@ -5199,7 +5199,7 @@ checksum = "1ebf944e87a7c253233ad6766e082e3cd714b5d03812acc24c318f549614536e"
 
 [[package]]
 name = "workbuddy-adapter"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "native-contracts",
  "serde",
@@ -5208,7 +5208,7 @@ dependencies = [
 
 [[package]]
 name = "workbuddy-process-fixture"
-version = "1.2.1"
+version = "1.2.2"
 
 [[package]]
 name = "writeable"

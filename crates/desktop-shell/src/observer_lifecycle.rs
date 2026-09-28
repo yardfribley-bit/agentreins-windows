@@ -185,7 +185,7 @@ fn ensure_observers(
     resource_root: &Path,
 ) -> Result<(), String> {
     let lifecycle = lifecycle_path()?;
-    let profile = load_observer_profile(configuration)?;
+    let profile = load_observer_profile(configuration, resource_root)?;
     ensure_service_installed(configuration, resource_root, &profile.identity_path)?;
     validate_service_configuration(configuration, &profile.identity_path)?;
     let minimum_pointer_time = ensure_os_service_started()?;
@@ -423,7 +423,13 @@ fn wait_for_os_run(minimum_pointer_time: Option<u64>) -> Result<CurrentOsRun, St
     ))
 }
 
-fn load_observer_profile(configuration: &ProductConfiguration) -> Result<ObserverProfile, String> {
+fn load_observer_profile(configuration: &ProductConfiguration, resource_root: &Path) -> Result<ObserverProfile, String> {
+    let local = std::env::var_os("LOCALAPPDATA").map(PathBuf::from)
+        .ok_or_else(|| String::from("Windows LOCALAPPDATA 未定义"))?;
+    let profile_path = local.join("AgentReins").join("observer-profile.json");
+    if profile_path.is_file() {
+        return validate_observer_profile(read_json(&profile_path, "WorkBuddy 观测配置")?);
+    }
     let mut candidates = Vec::new();
     let entries = fs::read_dir(&configuration.evidence_root).map_err(|error| {
         format!(
@@ -450,6 +456,19 @@ fn load_observer_profile(configuration: &ProductConfiguration) -> Result<Observe
         candidates.push((modified, path));
     }
     candidates.sort_by_key(|candidate| candidate.0);
+    if candidates.is_empty() {
+        let script = resource_root.join("scripts").join("initialize-workbuddy-observer.ps1");
+        if !script.is_file() {
+            return Err(format!("首次采集初始化脚本未打包 path={}", script.display()));
+        }
+        let output = run_command(Command::new(power_shell_path()?)
+            .arg("-NoProfile").arg("-NonInteractive").arg("-ExecutionPolicy").arg("Bypass")
+            .arg("-File").arg(script))?;
+        if !output.status.success() {
+            return Err(format!("首次采集初始化失败 stdout={} stderr={}", decode_output(&output.stdout), decode_output(&output.stderr)));
+        }
+        return validate_observer_profile(read_json(&profile_path, "首次 WorkBuddy 观测配置")?);
+    }
     let state_path = candidates
         .pop()
         .map(|candidate| candidate.1)
@@ -460,6 +479,10 @@ fn load_observer_profile(configuration: &ProductConfiguration) -> Result<Observe
             )
         })?;
     let state = read_json::<SemanticProcessState>(&state_path, "语义 Observer 状态")?;
+    validate_observer_profile(state)
+}
+
+fn validate_observer_profile(state: SemanticProcessState) -> Result<ObserverProfile, String> {
     if !state.project_root.is_dir() {
         return Err(format!(
             "WorkBuddy 项目目录不存在 path={}",
