@@ -107,12 +107,14 @@ fn create_observer_pair(
 }
 
 fn create_test_root() -> Result<PathBuf, String> {
+    static NEXT_ROOT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    let sequence = NEXT_ROOT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     let unix_ms = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map_err(|error| format!("测试时间早于 Unix 元年 error={error}"))?
         .as_millis();
     let root = std::env::temp_dir().join(format!(
-        "agentreins-product-selection-{}-{unix_ms}",
+        "agentreins-product-selection-{}-{unix_ms}-{sequence}",
         std::process::id()
     ));
     fs::create_dir(&root).map_err(|error| {
