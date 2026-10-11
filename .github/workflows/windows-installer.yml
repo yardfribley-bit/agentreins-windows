@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - codex/windows-audit-upload
+      - codex/windows-realtime-test
   workflow_dispatch:
 
 permissions:

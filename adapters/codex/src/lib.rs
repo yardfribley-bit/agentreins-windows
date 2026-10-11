@@ -280,7 +280,7 @@ fn update_state(state: &mut StreamState, row: &Value) {
     if state.inherited_history {
         return;
     }
-    if let turn = text(payload, "turn_id") {
+    if let Some(turn) = text(payload, "turn_id") {
         state.turn_id = Some(turn);
     }
     if row["type"] == "turn_context"
