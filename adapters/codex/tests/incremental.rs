@@ -197,7 +197,7 @@ fn runtime_envelopes_are_context_but_human_quotes_are_preserved() {
 }
 
 #[test]
-fn truncation_and_same_size_replacement_require_explicit_rebaseline() {
+fn truncation_and_cursor_tail_replacement_require_explicit_rebaseline() {
     let bytes = line(
         "event_msg",
         json!({"type":"user_message", "message":"original"}),
@@ -211,10 +211,12 @@ fn truncation_and_same_size_replacement_require_explicit_rebaseline() {
         )
         .is_err()
     );
-    let changed = bytes
-        .iter()
-        .map(|byte| if *byte == b'o' { b'x' } else { *byte })
-        .collect::<Vec<_>>();
+    // The cursor authenticates only its trailing 64 bytes, not old history.
+    // Alter a timestamp digit inside that anchor while preserving file length.
+    let mut changed = bytes.clone();
+    let index = changed.iter().rposition(|byte| *byte == b'0').unwrap();
+    assert!(index >= changed.len().saturating_sub(64));
+    changed[index] = b'1';
     assert!(read_batch(&mut Reader::new(changed), &first.next_cursor, 65536).is_err());
 }
 
