@@ -1,4 +1,5 @@
 import "./styles.css";
+import { startPolling } from "./polling";
 
 import {
   applyRetentionPlan,
@@ -1124,7 +1125,13 @@ const createApplication = async (): Promise<void> => {
   try {
     await waitForObserverRuntime();
     await refresh(false);
-    window.setInterval(() => { void refreshObserverStatus(); }, 5_000);
+    const polling = startPolling(refreshObserverStatus, { isVisible: () => !document.hidden });
+    const visibilityChanged = () => { polling.wake(); };
+    document.addEventListener("visibilitychange", visibilityChanged);
+    window.addEventListener("pagehide", () => {
+      polling.stop();
+      document.removeEventListener("visibilitychange", visibilityChanged);
+    }, { once: true });
   } catch (error) {
     renderFailure(main, error instanceof Error ? error : new Error(String(error)));
     requireElement<HTMLElement>("#observer-top-status").textContent = "启动失败";

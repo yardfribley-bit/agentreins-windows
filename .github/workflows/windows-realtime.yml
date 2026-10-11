@@ -1,0 +1,62 @@
+name: Windows realtime compatibility
+
+on:
+  pull_request:
+    paths:
+      - 'adapters/codex/**'
+      - 'apps/desktop-ui/**'
+      - 'crates/native-contracts/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/windows-realtime.yml'
+  push:
+    paths:
+      - 'adapters/codex/**'
+      - 'apps/desktop-ui/**'
+      - 'crates/native-contracts/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/windows-realtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  codex-live-reader:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/desktop-ui/package-lock.json
+      - name: Test and build desktop UI
+        working-directory: apps/desktop-ui
+        run: |
+          npm ci
+          npm test
+          npm run build
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.88.0
+          components: rustfmt, clippy
+      - name: Check new adapter formatting
+        run: cargo fmt -p codex-adapter --check
+      - name: Test incremental reader and shared contracts on Windows
+        run: cargo test --locked -p codex-adapter -p native-contracts
+      - name: Check adapter warnings
+        run: cargo clippy --locked -p codex-adapter --all-targets -- -D warnings
+      - name: Build Windows reader
+        run: cargo build --locked --release -p codex-adapter --bin codex-live-reader
+      - name: Verify executable entry point
+        run: ./target/release/codex-live-reader.exe --help
+      - name: Upload development reader
+        uses: actions/upload-artifact@v4
+        with:
+          name: AgentReins-Windows-Codex-reader-development
+          path: target/release/codex-live-reader.exe
+          if-no-files-found: error
+          retention-days: 7

@@ -8,6 +8,7 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build --base ./",
     "preview": "vite preview --host 127.0.0.1",

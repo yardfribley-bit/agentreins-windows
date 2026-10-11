@@ -7,6 +7,7 @@ AgentReins 是面向 Windows Agent 应用的安全观测与证据关联工具。
 - 仅观测，不实施阻断。
 - 不使用时间接近性冒充原生因果关系；缺少原生标识时明确展示证据断点。
 - 当前只对 WorkBuddy 适配和 Windows 运行环境进行验证；其他 Agent 尚未宣称支持。
+- Codex 增量读取模块及 Windows CI 已加入开发代码，尚未接入桌面主界面；实时工作台对齐范围与待完成项见 [Windows 实时版对齐](docs/WINDOWS-REALTIME-PARITY.md)。
 - Rust 构建、测试、ETW 采集和性能验证必须在 Windows 上执行。
 
 ## 项目结构

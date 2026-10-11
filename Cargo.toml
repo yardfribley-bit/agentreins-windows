@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "adapters/codex",
     "adapters/workbuddy",
     "crates/etw-collector",
     "crates/evidence-correlator",
