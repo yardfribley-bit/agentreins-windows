@@ -45,6 +45,13 @@ jobs:
           components: rustfmt, clippy
       - name: Check new adapter formatting
         run: cargo fmt -p codex-adapter --check
+      - name: Refresh dependency lock on Windows
+        run: cargo update --workspace
+      - name: Preserve resolved lock for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-resolved-Cargo-lock
+          path: Cargo.lock
       - name: Test incremental reader and shared contracts on Windows
         run: cargo test --locked -p codex-adapter -p native-contracts
       - name: Check adapter warnings
